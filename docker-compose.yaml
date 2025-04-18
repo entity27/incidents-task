@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:17.4-alpine
+    container_name: incidents-postgres
+    ports:
+      - "54320:5432"
+    env_file:
+      - envs/postgres.env
+    volumes:
+      - incidents_postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    image: incidents-api:latest
+    container_name: incidents-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - envs/docker.incidents.env
+    depends_on:
+      - postgres
+    volumes:
+      - ./src:/app/src
+
+  tests:
+    build:
+      context: .
+      dockerfile: docker/tests.Dockerfile
+    image: incidents-tests:latest
+    container_name: incidents-tests
+    env_file:
+      - envs/docker.incidents.env
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+
+volumes:
+  incidents_postgres_data:
+
+networks:
+  default:
+    name: incidents-network
