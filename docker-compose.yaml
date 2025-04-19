@@ -9,6 +9,19 @@ services:
     volumes:
       - incidents_postgres_data:/var/lib/postgresql/data
 
+  postgres_test:
+    image: postgres:17.4-alpine
+    container_name: incidents-postgres-test
+    env_file:
+      - envs/postgres.env
+    ports:
+      - "54321:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
   api:
     build:
       context: .
@@ -32,9 +45,14 @@ services:
     container_name: incidents-tests
     env_file:
       - envs/docker.incidents.env
+    environment:
+      DB_HOST: incidents-postgres-test
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests
+    depends_on:
+      postgres_test:
+        condition: service_healthy
 
 volumes:
   incidents_postgres_data:

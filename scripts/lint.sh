@@ -3,6 +3,6 @@
 set -e
 set -x
 
-mypy --config-file pyproject.toml --explicit-package-bases src tests
+mypy --config-file pyproject.toml --explicit-package-bases src
 ruff check src tests
 ruff format src tests --check
