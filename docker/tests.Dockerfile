@@ -9,7 +9,10 @@ COPY [ \
     "./" \
 ]
 
-RUN pip install --no-cache-dir -r requirements.tests.txt
+RUN apk add --no-cache postgresql-libs && \
+    apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev python3-dev && \
+    pip install --no-cache-dir -r requirements.tests.txt && \
+    apk del .build-deps
 
 EXPOSE 8000
 
